@@ -1,0 +1,34 @@
+/* ==========================================================================
+   Global styles
+   1. Framework imports (order matters: Tailwind before HeroUI)
+   2. Design tokens (fonts, gold accent theme)
+   3. Base
+   ========================================================================== */
+
+/* 1. Framework imports ---------------------------------------------------- */
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* 2. Design tokens --------------------------------------------------------- */
+@theme {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Gold accent. HeroUI derives hover/soft/foreground tones from `--accent`
+   via color-mix, so re-theming the whole system takes two overrides. */
+.dark {
+  --accent: #f0b341;
+  --accent-foreground: #1c1204;
+}
+
+/* 3. Base ------------------------------------------------------------------ */
+body {
+  min-height: 100dvh;
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+}
