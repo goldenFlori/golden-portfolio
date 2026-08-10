@@ -30,6 +30,16 @@ src/
       ReposPanel.tsx
       states.tsx             # shared loading / error / empty states
       index.ts               # public surface of the module
+    f1-lakehouse/            # v0.3 demo tile — Databricks pipeline + dashboard recreation
+      F1Lakehouse.tsx        # card shell: header, tabs (Pipeline / Standings / All-Time)
+      PipelineDiagram.tsx    # the real 17-task medallion DAG
+      StandingsView.tsx      # season standings: table + bar + pie
+      AllTimeView.tsx        # career "greatness score" leaderboards
+      BarChart.tsx           # sequential-gold ranked bar chart
+      PieChart.tsx           # categorical pie + legend
+      palette.ts             # chart color system (validated with the dataviz skill)
+      data.ts                # real F1 standings/career stats + the pipeline DAG as data
+      index.ts               # public surface of the module
   hooks/
     useGithub.ts             # query hooks + `githubKeys` key factory
   lib/
@@ -59,7 +69,7 @@ GitHub Pages via `.github/workflows/deploy.yml`. One-time setup: **Settings → 
 
 - [x] v0.1 — hero + live GitHub activity card (tabs, skeletons, refresh) on a glass surface
 - [ ] v0.2 — interactive demo tile: payments state machine (Raiffeisen write-up)
-- [ ] v0.3 — interactive demo tile: F1 lakehouse pipeline animation
+- [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG
 - [ ] v0.4 — Python + Selenium smoke suite in CI against the built site
 - [ ] Custom domain
 
