@@ -3,6 +3,7 @@
    1. Framework imports (order matters: Tailwind before HeroUI)
    2. Design tokens (fonts, gold accent theme)
    3. Base
+   4. Small utilities
    ========================================================================== */
 
 /* 1. Framework imports ---------------------------------------------------- */
@@ -31,4 +32,27 @@ body {
 
 ::selection {
   background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+}
+
+/* 4. Small utilities --------------------------------------------------------- */
+.gold-text {
+  background: linear-gradient(105deg, #f8dc94 0%, #f0b341 48%, #c9871c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--color-success);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-success) 50%, transparent);
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
 }
