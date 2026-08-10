@@ -3,7 +3,8 @@
    1. Framework imports (order matters: Tailwind before HeroUI)
    2. Design tokens (fonts, gold accent theme)
    3. Base
-   4. Small utilities
+   4. Ambient background (animated gold orbs)
+   5. Small utilities & accessibility
    ========================================================================== */
 
 /* 1. Framework imports ---------------------------------------------------- */
@@ -34,7 +35,44 @@ body {
   background: color-mix(in oklab, var(--color-accent) 35%, transparent);
 }
 
-/* 4. Small utilities --------------------------------------------------------- */
+/* 4. Ambient background ----------------------------------------------------
+   A field of small gold particles drifting very slowly behind the content.
+   Positions, tones and timings are set per particle as inline custom
+   properties by <AmbientBackground/>; the shared keyframes below read them.
+   `transform`-only animation keeps everything on the compositor. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* faint static warmth so the glass surface has something to blur everywhere */
+.ambient-wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    900px 500px at 70% -10%,
+    color-mix(in oklab, var(--color-accent) 7%, transparent),
+    transparent 70%
+  );
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--tone) 0%, transparent 70%);
+  animation: float var(--duration) ease-in-out var(--delay) infinite alternate;
+}
+
+@keyframes float {
+  to {
+    transform: translate(var(--drift-x), var(--drift-y));
+  }
+}
+
+/* 5. Small utilities & accessibility --------------------------------------- */
 .gold-text {
   background: linear-gradient(105deg, #f8dc94 0%, #f0b341 48%, #c9871c 100%);
   -webkit-background-clip: text;
@@ -54,5 +92,12 @@ body {
 @keyframes pulse {
   70% {
     box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle,
+  .pulse-dot {
+    animation: none;
   }
 }
