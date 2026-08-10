@@ -6,7 +6,7 @@ export function SiteFooter() {
       <p className="font-mono text-xs text-muted">
         v0.1 · first commit — interactive project demos shipping next ·{" "}
         <Link
-          href="https://github.com/goldenFlori/portfolio"
+          href="https://github.com/goldenFlori/golden-portfolio"
           target="_blank"
           className="text-xs"
         >
