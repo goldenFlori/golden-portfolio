@@ -4,7 +4,8 @@
    2. Design tokens (fonts, gold accent theme)
    3. Base
    4. Ambient background (animated gold orbs)
-   5. Small utilities & accessibility
+   5. Glass surface
+   6. Small utilities & accessibility
    ========================================================================== */
 
 /* 1. Framework imports ---------------------------------------------------- */
@@ -72,7 +73,20 @@ body {
   }
 }
 
-/* 5. Small utilities & accessibility --------------------------------------- */
+/* 5. Glass surface ---------------------------------------------------------
+   Translucent panel that blurs the moving gold behind it. Declared after the
+   HeroUI import so it wins the cascade against `.card` at equal specificity. */
+.glass {
+  background: color-mix(in oklab, var(--color-surface) 52%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 10%, transparent);
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / 0.35),
+    inset 0 1px 0 color-mix(in oklab, white 8%, transparent);
+}
+
+/* 6. Small utilities & accessibility --------------------------------------- */
 .gold-text {
   background: linear-gradient(105deg, #f8dc94 0%, #f0b341 48%, #c9871c 100%);
   -webkit-background-clip: text;
