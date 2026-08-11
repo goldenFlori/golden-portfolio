@@ -187,26 +187,37 @@ export interface PipelineTask {
 }
 
 /** The real 17-task DAG from `resources/jobs/job_formula1_lakehouse_full_refresh.yml`
- * in goldenFlori/formula1-databricks — exact task names and dependencies. */
+ * in goldenFlori/formula1-databricks — exact task names and dependencies. `key`
+ * is the literal Databricks `task_key`, so a live run's status (see
+ * `lib/pipeline.ts`) maps onto these entries with no translation layer. */
 export const pipelineTasks: PipelineTask[] = [
-  { key: "ingest_circuits", label: "Ingest Circuits File", layer: "bronze", dependsOn: [] },
-  { key: "ingest_races", label: "Ingest Races File", layer: "bronze", dependsOn: [] },
-  { key: "ingest_constructors", label: "Ingest Constructors File", layer: "bronze", dependsOn: [] },
-  { key: "ingest_drivers", label: "Ingest Drivers File", layer: "bronze", dependsOn: [] },
-  { key: "ingest_results", label: "Ingest Results File", layer: "bronze", dependsOn: [] },
-  { key: "ingest_sprints", label: "Ingest Sprints File", layer: "bronze", dependsOn: [] },
-  { key: "transform_circuits", label: "Transform Circuits Data", layer: "silver", dependsOn: ["ingest_circuits"] },
-  { key: "transform_races", label: "Transform Races Data", layer: "silver", dependsOn: ["ingest_races"] },
-  { key: "transform_constructors", label: "Transform Constructors Data", layer: "silver", dependsOn: ["ingest_constructors"] },
-  { key: "transform_drivers", label: "Transform Drivers Data", layer: "silver", dependsOn: ["ingest_drivers"] },
-  { key: "transform_results", label: "Transform Results Data", layer: "silver", dependsOn: ["ingest_results"] },
-  { key: "transform_sprints", label: "Transform Sprints Data", layer: "silver", dependsOn: ["ingest_sprints"] },
-  { key: "build_races_dim", label: "Build Races Dimension", layer: "gold", dependsOn: ["transform_circuits", "transform_races"] },
-  { key: "build_constructors_dim", label: "Build Constructors Dimension", layer: "gold", dependsOn: ["transform_constructors"] },
-  { key: "build_drivers_dim", label: "Build Drivers Dimension", layer: "gold", dependsOn: ["transform_drivers"] },
-  { key: "build_results_fact", label: "Build Results Fact", layer: "gold", dependsOn: ["transform_results", "transform_sprints"] },
-  { key: "build_nationality_ref", label: "Build Nationality Region Reference", layer: "gold", dependsOn: [] },
+  { key: "01_ingest_circuits_file", label: "Ingest Circuits File", layer: "bronze", dependsOn: [] },
+  { key: "02_ingest_races_file", label: "Ingest Races File", layer: "bronze", dependsOn: [] },
+  { key: "03_ingest_constructors_file", label: "Ingest Constructors File", layer: "bronze", dependsOn: [] },
+  { key: "04_ingest_drivers_file", label: "Ingest Drivers File", layer: "bronze", dependsOn: [] },
+  { key: "05_ingest_results_file", label: "Ingest Results File", layer: "bronze", dependsOn: [] },
+  { key: "06_ingest_sprints_file", label: "Ingest Sprints File", layer: "bronze", dependsOn: [] },
+  { key: "01_transform_circuits_data", label: "Transform Circuits Data", layer: "silver", dependsOn: ["01_ingest_circuits_file"] },
+  { key: "02_transform_races_data", label: "Transform Races Data", layer: "silver", dependsOn: ["02_ingest_races_file"] },
+  { key: "03_transform_constructors_data", label: "Transform Constructors Data", layer: "silver", dependsOn: ["03_ingest_constructors_file"] },
+  { key: "04_transform_drivers_data", label: "Transform Drivers Data", layer: "silver", dependsOn: ["04_ingest_drivers_file"] },
+  { key: "05_transform_results_data", label: "Transform Results Data", layer: "silver", dependsOn: ["05_ingest_results_file"] },
+  { key: "06_transform_sprints_data", label: "Transform Sprints Data", layer: "silver", dependsOn: ["06_ingest_sprints_file"] },
+  { key: "01_Build_Races_Dimension", label: "Build Races Dimension", layer: "gold", dependsOn: ["01_transform_circuits_data", "02_transform_races_data"] },
+  { key: "02_Build_Constructors_Dimension", label: "Build Constructors Dimension", layer: "gold", dependsOn: ["03_transform_constructors_data"] },
+  { key: "03_Build_Drivers_Dimension", label: "Build Drivers Dimension", layer: "gold", dependsOn: ["04_transform_drivers_data"] },
+  { key: "04_Build_Results_Fact", label: "Build Results Fact", layer: "gold", dependsOn: ["05_transform_results_data", "06_transform_sprints_data"] },
+  { key: "91_Build_Nationality_Region_Reference", label: "Build Nationality Region Reference", layer: "gold", dependsOn: [] },
 ];
+
+/** Gold tables queried for live row counts after a successful run (see `lib/pipeline.ts`). */
+export const goldTables = [
+  "dim_races",
+  "dim_constructors",
+  "dim_drivers",
+  "fact_session_results",
+  "ref_nationality_region",
+] as const;
 
 /** Verified facts about the pipeline, quoted for the tile's caption/footer. */
 export const pipelineMeta = {
