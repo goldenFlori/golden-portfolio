@@ -1,7 +1,7 @@
 import { Card, Chip, Link, Tabs } from "@heroui/react";
 import { AllTimeView } from "./AllTimeView";
 import { pipelineMeta } from "./data";
-import { PipelineDiagram } from "./PipelineDiagram";
+import { LiveRunPanel } from "./LiveRunPanel";
 import { StandingsView } from "./StandingsView";
 
 /**
@@ -53,7 +53,7 @@ export function F1Lakehouse() {
             </Tabs.List>
           </Tabs.ListContainer>
           <Tabs.Panel id="pipeline" className="pt-3">
-            <PipelineDiagram />
+            <LiveRunPanel />
           </Tabs.Panel>
           <Tabs.Panel id="standings" className="pt-3">
             <StandingsView />
