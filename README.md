@@ -39,15 +39,20 @@ src/
       PieChart.tsx           # categorical pie + legend
       palette.ts             # chart color system (validated with the dataviz skill)
       data.ts                # real F1 standings/career stats + the pipeline DAG as data
+      LiveRunPanel.tsx       # live trigger/poll UI for a real Databricks run (dormant, see below)
       index.ts               # public surface of the module
   hooks/
     useGithub.ts             # query hooks + `githubKeys` key factory
+    usePipeline.ts           # query/mutation hooks + `pipelineKeys` key factory
   lib/
     github.ts                # typed GitHub API client (no React)
+    pipeline.ts               # client for worker/ — the one place this site calls anything backend-shaped
     motion.ts                # shared animation presets
   data/
     content.ts               # profile, projects, experience — content only
   index.css                  # sectioned: tokens → base → ambient → glass → utilities
+worker/                      # Cloudflare Worker: proxies real Databricks API calls, holds the token
+                              # server-side. Not deployed yet — see worker/README.md.
 ```
 
 Conventions: UI components hold no fetching logic (hooks do); the API client holds no React; query keys come from a single factory so cache invalidation has one source of truth; animation presets are shared so motion stays consistent; each file stays small enough to read in one pass.
@@ -65,11 +70,17 @@ npm run preview # serve the production build locally
 
 GitHub Pages via `.github/workflows/deploy.yml`. One-time setup: **Settings → Pages → Source: GitHub Actions**. The workflow computes the base path from the repo name automatically.
 
+## Live F1 pipeline (optional, currently dormant)
+
+The F1 Lakehouse tile's Pipeline tab can trigger and poll a **real** run of the [formula1-databricks](https://github.com/goldenFlori/formula1-databricks) full-refresh job, through a small Cloudflare Worker (`worker/`) that holds the Databricks token server-side — a static site has nowhere safe to keep that secret client-side. This isn't a step back from "no backend": the Worker is stateless and scale-to-zero, not a server anyone has to keep running, and it's the only piece of this repo that talks to anything backend-shaped.
+
+It isn't deployed yet — the Databricks student subscription behind it is exhausted and renews in a few months. Until `VITE_PIPELINE_API_URL` is set, the tile shows the static recreation instead and the live-trigger UI doesn't render. Setup steps for when it's ready: `worker/README.md`.
+
 ## Roadmap
 
 - [x] v0.1 — hero + live GitHub activity card (tabs, skeletons, refresh) on a glass surface
 - [ ] v0.2 — interactive demo tile: payments state machine (Raiffeisen write-up)
-- [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG
+- [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG; live-trigger path built, dormant until the Databricks subscription renews
 - [ ] v0.4 — Python + Selenium smoke suite in CI against the built site
 - [ ] Custom domain
 
