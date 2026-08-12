@@ -1,0 +1,30 @@
+{
+  "runs": [
+    {
+      "run_id": 1001,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "SUCCESS"
+      },
+      "start_time": 1735689600000,
+      "end_time": 1735689734000
+    },
+    {
+      "run_id": 1002,
+      "state": {
+        "life_cycle_state": "RUNNING"
+      },
+      "start_time": 1735776000000,
+      "end_time": null
+    },
+    {
+      "run_id": 1003,
+      "state": {
+        "life_cycle_state": "TERMINATED",
+        "result_state": "FAILED"
+      },
+      "start_time": 1735603200000,
+      "end_time": 1735603260000
+    }
+  ]
+}
