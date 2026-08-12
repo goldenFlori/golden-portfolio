@@ -3,3 +3,9 @@ dist/
 *.local
 .DS_Store
 CLAUDE.md
+
+# api/ (ASP.NET Core)
+bin/
+obj/
+*.user
+appsettings.Development.json.user
