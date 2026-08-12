@@ -1,6 +1,6 @@
 import { Chip } from "@heroui/react";
 import { motion } from "motion/react";
-import type { TaskState } from "../../lib/pipeline";
+import type { RunStatus } from "../../lib/pipeline";
 import { listItem, rise } from "../../lib/motion";
 import { ChevronDownIcon } from "../icons";
 import { pipelineMeta, pipelineTasks, type PipelineLayer } from "./data";
@@ -14,7 +14,7 @@ const LAYERS: { key: PipelineLayer; label: string; description: string }[] = [
 interface PipelineDiagramProps {
   /** Live per-task state from a real run (see `usePipeline`). When omitted,
    * chips fall back to the static bronze/silver/gold coloring. */
-  taskStatuses?: Record<string, TaskState>;
+  taskStatuses?: Record<string, RunStatus>;
 }
 
 /** The real 17-task medallion DAG from the full-refresh job, reproduced from
@@ -65,7 +65,7 @@ export function PipelineDiagram({ taskStatuses }: PipelineDiagramProps) {
   );
 }
 
-function chipAppearance(live: TaskState | undefined, layer: PipelineLayer): { color: "default" | "accent" | "success" | "danger"; variant: "secondary" | "soft" } {
+function chipAppearance(live: RunStatus | undefined, layer: PipelineLayer): { color: "default" | "accent" | "success" | "danger"; variant: "secondary" | "soft" } {
   if (live === "success") return { color: "success", variant: "soft" };
   if (live === "failed") return { color: "danger", variant: "soft" };
   if (live === "running") return { color: "accent", variant: "soft" };

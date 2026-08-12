@@ -1,60 +1,33 @@
 /**
- * Client for the f1-lakehouse-proxy Worker (`worker/`) — the one place this
- * site talks to anything resembling a backend, and only because a real
- * Databricks token can't safely live in static frontend code. See
- * `worker/README.md` for what runs behind this.
+ * Client for `api/` — the one place this site talks to anything
+ * backend-shaped, and only because a Databricks token can't safely live in
+ * static frontend code. See `api/README.md` for what runs behind this.
  *
- * `VITE_PIPELINE_API_URL` is unset until the Worker is actually deployed
- * (see `pipelineLiveEnabled`), so the live-trigger UI stays dark and the F1
- * Lakehouse tile falls back to the static recreation until then.
+ * `VITE_PIPELINE_API_URL` is unset until the API is actually deployed (see
+ * `pipelineLiveEnabled`), so the live section stays dark and the F1
+ * Lakehouse tile falls back to the static recreation until then — same gate
+ * the earlier Cloudflare Worker prototype used.
  */
 
-export type TaskState = "pending" | "running" | "success" | "failed";
+export type RunStatus = "pending" | "running" | "success" | "failed";
 
-export interface TaskStatus {
-  key: string;
-  status: TaskState;
-  startTime?: number;
-  endTime?: number;
-}
-
-export interface RunSummary {
-  runId: number;
-  status: TaskState;
-  startTime?: number;
-  endTime?: number;
-  tasks: TaskStatus[];
-  tables?: Record<string, number>;
-}
-
-export type LatestRun = RunSummary | { status: "never_run" };
-
-export interface TriggerRejected {
-  error: "rate_limited";
-  retryAfterMs: number;
+export interface PipelineRun {
+  id: number;
+  status: RunStatus;
+  startedAt: string | null;
+  /** Null while the run is still in progress — render that distinctly, not as 0s. */
+  durationSeconds: number | null;
 }
 
 const API_URL = import.meta.env.VITE_PIPELINE_API_URL as string | undefined;
 
 export const pipelineLiveEnabled = Boolean(API_URL);
 
-async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
+export async function fetchPipelineHistory(): Promise<PipelineRun[]> {
   if (!API_URL) throw new Error("VITE_PIPELINE_API_URL is not configured");
-  const res = await fetch(`${API_URL}${path}`, init);
-  if (!res.ok && res.status !== 429) {
-    throw new Error(`Pipeline API ${path} responded ${res.status}`);
+  const res = await fetch(`${API_URL}/api/pipeline/history`);
+  if (!res.ok) {
+    throw new Error(`Pipeline API responded ${res.status}`);
   }
-  return res.json() as Promise<T>;
-}
-
-export function fetchLatestRun(): Promise<LatestRun> {
-  return getJson<LatestRun>("/api/latest");
-}
-
-export function triggerRun(): Promise<{ runId: number } | TriggerRejected> {
-  return getJson("/api/trigger", { method: "POST" });
-}
-
-export function fetchRunStatus(runId: number): Promise<RunSummary> {
-  return getJson<RunSummary>(`/api/status?runId=${runId}`);
+  return res.json() as Promise<PipelineRun[]>;
 }
