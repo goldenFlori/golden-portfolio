@@ -74,6 +74,44 @@ public class DatabricksJobsServiceTests
         Assert.Equal("failed", dto.Status);
     }
 
+    [Fact]
+    public void Maps_per_task_state_for_the_status_endpoint()
+    {
+        var run = new DatabricksRun
+        {
+            RunId = 42,
+            State = new DatabricksRunState { LifeCycleState = "RUNNING" },
+            StartTimeMs = 1735689600000,
+            EndTimeMs = null,
+            Tasks =
+            [
+                new DatabricksTask { TaskKey = "01_ingest_circuits_file", State = new DatabricksRunState { LifeCycleState = "TERMINATED", ResultState = "SUCCESS" } },
+                new DatabricksTask { TaskKey = "02_ingest_races_file", State = new DatabricksRunState { LifeCycleState = "RUNNING" } },
+                new DatabricksTask { TaskKey = "03_ingest_constructors_file", State = new DatabricksRunState { LifeCycleState = "PENDING" } },
+            ],
+        };
+
+        var dto = DatabricksJobsService.MapToStatusDto(run);
+
+        Assert.Equal(42, dto.Id);
+        Assert.Equal("running", dto.Status);
+        Assert.Null(dto.DurationSeconds);
+        Assert.Equal(3, dto.Tasks.Count);
+        Assert.Equal("success", dto.Tasks.Single(t => t.Key == "01_ingest_circuits_file").Status);
+        Assert.Equal("running", dto.Tasks.Single(t => t.Key == "02_ingest_races_file").Status);
+        Assert.Equal("pending", dto.Tasks.Single(t => t.Key == "03_ingest_constructors_file").Status);
+    }
+
+    [Fact]
+    public void Maps_a_run_with_no_tasks_to_an_empty_task_list()
+    {
+        var run = new DatabricksRun { RunId = 1, State = new DatabricksRunState { LifeCycleState = "PENDING" } };
+
+        var dto = DatabricksJobsService.MapToStatusDto(run);
+
+        Assert.Empty(dto.Tasks);
+    }
+
     [Theory]
     [InlineData(null, null, "pending")]
     [InlineData("PENDING", null, "pending")]
