@@ -29,6 +29,10 @@ internal sealed class DatabricksRun
 
     [JsonPropertyName("end_time")]
     public long? EndTimeMs { get; set; }
+
+    /// <summary>Only present on GET runs/get (not runs/list) — per-task state for the DAG.</summary>
+    [JsonPropertyName("tasks")]
+    public List<DatabricksTask>? Tasks { get; set; }
 }
 
 internal sealed class DatabricksRunState
@@ -38,4 +42,20 @@ internal sealed class DatabricksRunState
 
     [JsonPropertyName("result_state")]
     public string? ResultState { get; set; }
+}
+
+internal sealed class DatabricksTask
+{
+    [JsonPropertyName("task_key")]
+    public string TaskKey { get; set; } = string.Empty;
+
+    [JsonPropertyName("state")]
+    public DatabricksRunState? State { get; set; }
+}
+
+/// <summary>Response of POST /api/2.2/jobs/run-now.</summary>
+internal sealed class RunNowResponse
+{
+    [JsonPropertyName("run_id")]
+    public long RunId { get; set; }
 }
