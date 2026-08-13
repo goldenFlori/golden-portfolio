@@ -118,7 +118,7 @@ This mirrors my actual day-job stack (React + ASP.NET Core + SQL Server + realti
 ## Roadmap
 
 - [x] v0.1 — hero + live GitHub activity card (tabs, skeletons, refresh) on a glass surface
-- [ ] v0.2 — interactive demo tile: payments state machine (Raiffeisen write-up)
+- [ ] v0.2 — interactive demo tile: payments state machine
 - [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG. Live backend (`api/`) stage 1 shipped — read-only execution history, not deployed yet (needs a real Databricks workspace + Azure Container Apps environment). Stages 2/3 (persistence + rate limiting, then trigger + realtime) not started.
 - [ ] v0.4 — Python + Selenium smoke suite in CI against the built site
 - [ ] Custom domain
