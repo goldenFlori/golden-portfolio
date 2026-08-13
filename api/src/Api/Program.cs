@@ -14,6 +14,10 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services
+    .AddOptions<PipelineOptions>()
+    .Bind(builder.Configuration.GetSection(PipelineOptions.SectionName));
+
+builder.Services
     .AddHttpClient<IDatabricksJobsService, DatabricksJobsService>()
     .AddStandardResilienceHandler();
 
