@@ -55,6 +55,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # container-apps-deploy-action doesn't call `az acr login` on its own
+      # when relying on OIDC/RBAC (only when given a registry
+      # username/password) — without this, its internal `docker push` fails
+      # unauthorized. This reuses the OIDC session above (AcrPush role,
+      # no stored credential) rather than an ACR admin password.
+      - name: Log in to Azure Container Registry
+        env:
+          REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+        run: az acr login --name ${REGISTRY%%.*}
+
       # Builds api/src/Api/Dockerfile, pushes to the registry, and updates
       # the Container App to the new image — min-replicas/ingress/secrets
       # stay whatever they were last configured to (see api/README.md for
