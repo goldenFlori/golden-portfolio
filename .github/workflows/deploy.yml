@@ -45,6 +45,8 @@ jobs:
 
       - name: Typecheck & build
         run: npm run build
+        env:
+          VITE_PIPELINE_API_URL: https://f1-lakehouse-api.kindtree-13c91131.westeurope.azurecontainerapps.io
 
       - uses: actions/configure-pages@v5
 
