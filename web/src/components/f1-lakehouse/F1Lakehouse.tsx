@@ -5,12 +5,14 @@ import { LiveRunPanel } from "./LiveRunPanel";
 import { StandingsView } from "./StandingsView";
 
 /**
- * Recreates the Databricks Lakeview dashboard from the full-refresh F1
- * lakehouse pipeline (github.com/goldenFlori/formula1-databricks). That
- * project's Databricks workspace has since been decommissioned, so this is a
- * faithful client-side recreation — the real 17-task DAG, the real chart
- * types, the real greatness-score formula — built on public F1 standings
- * rather than a live query.
+ * Pipeline tab is live: a real ASP.NET Core backend (api/) triggers and
+ * polls actual runs of the full-refresh job on a rebuilt
+ * (github.com/goldenFlori/formula1-databricks) Databricks Free Edition
+ * workspace — the original workspace behind this project was decommissioned,
+ * this one replaces it. Standings and All-Time stay a faithful client-side
+ * recreation of the Lakeview dashboard — the real chart types, the real
+ * greatness-score formula — built on public F1 standings rather than a live
+ * SQL query.
  */
 export function F1Lakehouse() {
   return (
@@ -19,17 +21,17 @@ export function F1Lakehouse() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2.5">
             <Card.Title className="font-display">F1 Lakehouse</Card.Title>
-            <Chip color="default" size="sm">
-              <Chip.Label>recreation</Chip.Label>
+            <Chip color="success" size="sm">
+              <Chip.Label>live</Chip.Label>
             </Chip>
           </div>
           <Card.Description>
-            The full-refresh pipeline and dashboard from{" "}
+            The full-refresh pipeline from{" "}
             <Link href={pipelineMeta.repo} target="_blank">
               formula1-databricks
-            </Link>
-            , rebuilt here on real public F1 data — the project's own Databricks workspace has since
-            been decommissioned.
+            </Link>{" "}
+            runs live against a real Databricks workspace. Standings and All-Time are a client-side
+            recreation of the dashboard, built on real public F1 data.
           </Card.Description>
         </div>
       </Card.Header>
