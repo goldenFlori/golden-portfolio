@@ -2,7 +2,7 @@
 
 Personal portfolio of **Florjan Mema** — full-stack software engineer & data engineer in Tirana, Albania.
 
-A monorepo: a static React frontend (`web/`) deployed free on GitHub Pages, and — for one feature that genuinely needs it — a real ASP.NET Core backend (`api/`) deployed free on Azure Container Apps. Built with the stack I use professionally: **React 19 + TypeScript + HeroUI v3 + Tailwind CSS v4** on the frontend, **ASP.NET Core (C#)** on the backend, with **TanStack Query** streaming live data into the page on both sides — real GitHub commits, and (once `api/` is deployed) real Databricks pipeline runs, not screenshots or invented numbers.
+A monorepo: a static React frontend (`web/`) deployed free on GitHub Pages, and — for one feature that genuinely needs it — a real ASP.NET Core backend (`api/`) deployed free on Azure Container Apps. Built with the stack I use professionally: **React 19 + TypeScript + HeroUI v3 + Tailwind CSS v4** on the frontend, **ASP.NET Core (C#)** on the backend, with **TanStack Query** streaming live data into the page on both sides — real GitHub commits, and real Databricks pipeline runs (`api/` is live, backed by a real Databricks workspace), not screenshots or invented numbers.
 
 The repo grows commit by commit, on purpose: v0.1 is a small, polished, interactive start; each following commit ships one interactive project demo.
 
@@ -70,7 +70,7 @@ api/
   src/Api/
     Program.cs                 # hosting, DI, CORS (origins from config), health check
     Controllers/
-      PipelineController.cs    # thin — GET /api/pipeline/history
+      PipelineController.cs    # thin — history, per-run status, trigger
     Services/
       DatabricksJobsService.cs # the Databricks call, snake_case mapping, short-lived cache
     Options/
@@ -105,7 +105,7 @@ dotnet run --project src/Api
 
 **Frontend:** GitHub Pages via `.github/workflows/deploy.yml`. One-time setup: **Settings → Pages → Source: GitHub Actions**. The workflow computes the base path from the repo name automatically.
 
-**Backend:** not deployed yet. `api/README.md` has the full checklist — it needs a real Databricks workspace and a real Azure Container Apps environment, both of which are manual, one-time setup outside CI.
+**Backend:** live on Azure Container Apps, scale-to-zero. `api/README.md` has the full setup checklist (Databricks workspace, Container Apps environment, OIDC deploy pipeline) for anyone rebuilding this from scratch.
 
 ## Why a backend at all
 
@@ -113,13 +113,13 @@ The rest of this site is deliberately backend-free — that's what keeps it free
 
 This mirrors my actual day-job stack (React + ASP.NET Core + SQL Server + realtime) rather than a generic serverless function — an earlier version of this feature used a Cloudflare Worker, which worked but proved less, so it was replaced.
 
-**Where this stands today:** stage 1 only — `GET /api/pipeline/history`, read-only, no trigger, no database, no realtime. Later stages (not built yet): persistent rate limiting backed by Azure SQL (Container Apps loses in-memory state on scale-to-zero, so a public trigger button needs durable state to guard a finite Databricks quota), then an actual trigger endpoint with SignalR pushing live per-task status to every connected viewer. Until `api/` is deployed and `VITE_PIPELINE_API_URL` is set, the tile shows the static recreation and the live section doesn't render at all — same progressive-enhancement gate throughout.
+**Where this stands today:** `api/` is deployed and live — `GET /api/pipeline/history`, `GET /api/pipeline/status/{runId}`, and `POST /api/pipeline/trigger` all call a real Databricks Free Edition workspace. A visitor can click "Run pipeline" on the live site and watch an actual job run, polled client-side every 3s while in flight. What's still a deliberate simplification: rate limiting and "attach to an in-progress run" live in an in-memory cache, not a database — Container Apps loses that state on scale-to-zero, so a determined visitor could in theory outrun the cooldown across a cold start. Real persistence (Azure SQL) and pushing live per-task status via SignalR instead of polling are the remaining stages, not built yet. Until `VITE_PIPELINE_API_URL` is unset, the tile falls back to the static recreation — same progressive-enhancement gate as before.
 
 ## Roadmap
 
 - [x] v0.1 — hero + live GitHub activity card (tabs, skeletons, refresh) on a glass surface
 - [ ] v0.2 — interactive demo tile: payments state machine
-- [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG. Live backend (`api/`) stage 1 shipped — read-only execution history, not deployed yet (needs a real Databricks workspace + Azure Container Apps environment). Stages 2/3 (persistence + rate limiting, then trigger + realtime) not started.
+- [x] v0.3 — interactive demo tile: F1 lakehouse pipeline + dashboard recreation, real standings data, real 17-task DAG. Live backend (`api/`) deployed on Azure Container Apps against a real Databricks Free Edition workspace — execution history, per-run status polling, and a real trigger button all live. Persistent rate limiting (Azure SQL) and SignalR-pushed live status are the remaining, not-yet-built stages.
 - [ ] v0.4 — Python + Selenium smoke suite in CI against the built site
 - [ ] Custom domain
 

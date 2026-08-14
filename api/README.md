@@ -1,20 +1,29 @@
 # api/
 
-ASP.NET Core backend for the F1 Lakehouse tile's live-trigger feature. Stage 1
-(this stage): a single read-only endpoint proving the token, the hosting, and
-the Databricks connectivity work, before anything with more moving parts
-(persistence, rate limiting, triggering, realtime) gets added on top.
+ASP.NET Core backend for the F1 Lakehouse tile's live-trigger feature.
 
-**Not deployed yet.** The code is complete and locally verified (see
-"Verifying without real credentials" below), but going live needs a real
-Databricks workspace and a real Azure Container Apps environment — neither of
-which I can provision. That's on you; this doc is the checklist.
+**Deployed and live**, on Azure Container Apps, scale-to-zero, behind a real
+Databricks Free Edition workspace. A visitor on the live site can click "Run
+pipeline" and watch an actual Databricks job run. What's still a deliberate
+simplification: rate limiting and "attach to an in-progress run" live in an
+in-memory cache, not a database — Container Apps loses that state on
+scale-to-zero, so it's not a durable guard against abuse yet. Real
+persistence (Azure SQL) and pushing live per-task status via SignalR instead
+of client-side polling are the remaining stages, not built yet. The
+"Prerequisites" section below is kept as the from-scratch setup checklist —
+useful if this ever needs rebuilding in a new workspace/environment.
 
 ## What it does
 
 `GET /api/pipeline/history` — the last 10 runs of the F1 full-refresh job,
-proxied from Databricks Jobs API 2.2 (`GET /api/2.2/jobs/runs/list`). Nothing
-else yet: no trigger endpoint, no database, no realtime — those are stage 2/3.
+proxied from Databricks Jobs API 2.2 (`GET /api/2.2/jobs/runs/list`).
+
+`GET /api/pipeline/status/{runId}` — detailed status of one run, including
+per-task state. Polled client-side every 3s while a run is live.
+
+`POST /api/pipeline/trigger` — starts a real run of the full-refresh job,
+subject to a cooldown (see the in-memory caveat above); attaches the caller
+to a run already in progress instead of starting a second one.
 
 `GET /healthz` — plain liveness check, no Databricks call.
 
@@ -68,10 +77,11 @@ You don't need a real workspace to confirm the code is correct:
   message, not a crash. That's the graceful-degradation path doing its job
   before there's anything real to degrade from.
 
-## Prerequisites for actually deploying this
+## Prerequisites for deploying this (from-scratch checklist)
 
-None of this can happen from CI alone — each step below needs your Azure/Databricks
-account access, which I don't have.
+None of this can happen from CI alone — each step below needs Azure/Databricks
+account access. This is the actual path used to stand up the current live
+deployment, kept here for rebuilding in a new workspace/environment.
 
 **Databricks:**
 1. Create a Databricks Free Edition account (not the old exhausted student one).
@@ -98,28 +108,58 @@ account access, which I don't have.
        Databricks__Token=secretref:databricks-token \
        Cors__AllowedOrigins__0="https://goldenflori.github.io"
    ```
+   `Databricks__Host` must be the **bare hostname, no `https://` prefix**
+   (e.g. `dbc-xxxxxxxx-xxxx.cloud.databricks.com`) —
+   `DatabricksJobsService` builds the base address as `$"https://{Host}"`
+   itself. Passing a value that already includes the scheme silently breaks
+   URL parsing (host resolves to the literal string `https`) and every
+   request fails with a generic 502, which took real debugging to track down
+   the first time.
+
    This is a one-time step, not something `deploy-api.yml` re-applies on every
    push — CI only rebuilds and redeploys the image; environment config persists
    on the Container App across revisions.
-4. Create a Microsoft Entra app registration with a federated credential
-   scoped to this repo (`repo:goldenFlori/golden-portfolio:ref:refs/heads/main`)
-   so `azure/login@v2` can authenticate via OIDC — no long-lived Azure secret
-   stored in GitHub. Grant it `AcrPush` on the registry and `Contributor` (or
-   a narrower custom role) on the Container App.
+4. Create a Microsoft Entra app registration with a federated credential for
+   `azure/login@v2` to authenticate via OIDC — no long-lived Azure secret
+   stored in GitHub. Because `deploy-api.yml`'s `deploy` job declares
+   `environment: production`, GitHub's OIDC subject claim is
+   `repo:<org>/<repo>:environment:production`, **not** the more commonly
+   documented branch-based `...ref:refs/heads/main` — scope the federated
+   credential's Entity type to **Environment** (`production`), or the OIDC
+   handshake fails with `AADSTS700213: No matching federated identity
+   record found`. Grant the app `AcrPush` on the registry and `Contributor`
+   (or a narrower custom role) on the resource group.
 5. Add these as GitHub Actions repo secrets: `AZURE_CLIENT_ID`,
    `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_CONTAINER_REGISTRY`,
    `AZURE_RESOURCE_GROUP`, `AZURE_CONTAINER_APP_NAME`.
+6. Grant the Container App itself pull access to the registry — pushing and
+   pulling are separate permissions. `container-apps-deploy-action` doesn't
+   call `az acr login` on its own under OIDC/RBAC, so `deploy-api.yml` does
+   it explicitly before pushing. But the Container App still needs its own
+   identity to *pull*:
+   ```bash
+   az containerapp identity assign --name <app> --resource-group <rg> --system-assigned
+   principalId=$(az containerapp identity show --name <app> --resource-group <rg> --query principalId -o tsv)
+   az role assignment create --assignee $principalId --role AcrPull \
+     --scope $(az acr show --name <registry> --query id -o tsv)
+   az containerapp registry set --name <app> --resource-group <rg> \
+     --server <registry>.azurecr.io --identity system
+   ```
 
-**Frontend:** once the API is live, set `VITE_PIPELINE_API_URL` to its URL
-when building `web/` (see the root README) — the history list starts
-rendering with no other change needed, same gate as before.
+**Frontend:** `VITE_PIPELINE_API_URL` is set to the live API's URL when
+building `web/` (see `.github/workflows/deploy.yml` and the root README) —
+the history list and trigger button render with no other change needed.
 
-## Why no database or rate limiting yet
+## Why no database or persistent rate limiting yet
 
-Deliberately out of scope for stage 1 — "prove token + hosting + connectivity
-with minimal surface area." A 60-second in-memory cache in
-`DatabricksJobsService` keeps a page full of visitors from each hitting
-Databricks directly, but it's not persistent: Container Apps scale-to-zero
-means the process — and anything in memory — disappears when idle. Real,
-persistent rate limiting (so a public trigger button can't drain a finite
-Databricks quota) needs a database, which is stage 2.
+Deliberately out of scope so far — "prove token + hosting + connectivity
+with minimal surface area" first, then add a trigger endpoint before
+persistence. A 60-second in-memory cache in `DatabricksJobsService` keeps a
+page full of visitors from each hitting Databricks directly, and the same
+cache backs the trigger cooldown and "attach to an in-progress run" — but
+none of it is persistent: Container Apps scale-to-zero means the process,
+and anything in memory, disappears when idle. In practice this means the
+live trigger button's cooldown resets on a cold start, so it's not yet a
+durable guard against a determined visitor draining a finite Databricks
+quota. Real, persistent rate limiting needs a database — that's the next
+stage.
