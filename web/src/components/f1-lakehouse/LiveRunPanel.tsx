@@ -74,6 +74,7 @@ export function LiveRunPanel() {
                 <Chip.Label>{run.status}</Chip.Label>
               </Chip>
               <span>run #{run.id}</span>
+              {isRunning && <span>· real run, usually 2–3 min</span>}
             </>
           ) : (
             <span>Runs a real Databricks job — takes a few minutes, watch the DAG below light up.</span>
