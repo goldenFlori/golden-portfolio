@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig, motion } from "motion/react";
 import { AmbientBackground } from "./components/AmbientBackground";
+import { Background } from "./components/Background";
 import { F1Lakehouse } from "./components/f1-lakehouse";
 import { Hero } from "./components/Hero";
 import { SiteFooter } from "./components/SiteFooter";
@@ -23,6 +24,9 @@ export default function App() {
             </motion.div>
             <motion.div {...rise(0.42)}>
               <F1Lakehouse />
+            </motion.div>
+            <motion.div {...rise(0.5)}>
+              <Background />
             </motion.div>
           </main>
           <SiteFooter />
