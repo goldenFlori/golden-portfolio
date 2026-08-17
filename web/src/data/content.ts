@@ -41,11 +41,11 @@ export const projects: Project[] = [
   },
   {
     slug: "raiffeisen-payments",
-    title: "Payments Module — Raiffeisen Bank Albania",
+    title: "Portal & Payments Microfrontends — Raiffeisen Bank Albania",
     status: "IN PRODUCTION",
     description:
-      "Designed the data model, C#/.NET services and React 19 microfrontend on Single-SPA, live across the branch network since launch. SQL Server stored procedures, event-driven .NET microservices, and on-call production support: tracing failures through distributed services and shipping the fix directly.",
-    tags: [".NET", "React 19", "Single-SPA", "SQL Server", "Event-driven"],
+      "React 19 / Single-SPA microfrontends live across the branch network: the portal shell that orchestrates every microfrontend, the retail-customer module, and the payment module. Implements business logic and C#/.NET service work on an existing architecture — not designed from scratch — plus SQL Server work and on-call production support, tracing failures through distributed services and shipping the fix directly.",
+    tags: ["React 19", "Single-SPA", "Microfrontends", "C#/.NET", "SQL Server"],
     note: "Code private — live banking system",
   },
   {
@@ -71,7 +71,8 @@ export const experience: Experience[] = [
     role: "Software Engineer",
     org: "Raiffeisen Bank Albania · 3i Solutions",
     points: [
-      "Payments module live across the branch network: data model, C#/.NET services, React 19 microfrontend.",
+      "Builds on three React 19 / Single-SPA microfrontends live across the branch network — the portal shell, the retail-customer module, and the payment module — implementing business logic and C#/.NET service work on an existing architecture, not designed from scratch.",
+      "Production support: on call for live bank branches, tracing failures through distributed services and SQL Server data, shipping the fix directly.",
       "Mentors every new engineer — pairing, reviews, unblocking until they ship on their own.",
     ],
   },
