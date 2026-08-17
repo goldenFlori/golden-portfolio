@@ -15,7 +15,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
         <AmbientBackground />
-        <div className="relative mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-10 px-5 py-16">
+        <div className="relative mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-10 px-5 py-16 lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl">
           <Hero />
           <main className="flex flex-col gap-10">
             <motion.div {...rise(0.34)}>
