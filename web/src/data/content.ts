@@ -95,6 +95,35 @@ export const experience: Experience[] = [
   },
 ];
 
+export interface Education {
+  period: string;
+  degree: string;
+  org: string;
+}
+
+export const education: Education[] = [
+  {
+    period: "2021 — 2023",
+    degree: "MSc in Mathematics and Informatics Engineering",
+    org: "Faculty of Natural Sciences, University of Tirana",
+  },
+  {
+    period: "2018 — 2021",
+    degree: "BSc in Mathematics and Informatics Engineering",
+    org: "Faculty of Natural Sciences, University of Tirana",
+  },
+];
+
+export const certificates: string[] = [
+  "Azure Databricks & Spark for Data Engineers: Hands-on Project",
+  "React Query / TanStack Query: React Server State Management",
+  "Working with the OpenAI API",
+  "Intermediate SQL",
+  "Intermediate Python",
+  "Intermediate Importing Data in Python",
+  "Cleaning Data in Python",
+];
+
 export const skills: { label: string; items: string[] }[] = [
   {
     label: "Frontend",
