@@ -1,7 +1,8 @@
 import { Button, Chip } from "@heroui/react";
 import { motion } from "motion/react";
 import { profile } from "../data/content";
-import { rise } from "../lib/motion";
+import { pressable, rise } from "../lib/motion";
+import { GitHubIcon, LinkedInIcon, MailIcon } from "./icons";
 
 const openExternal = (url: string) => window.open(url, "_blank", "noopener");
 
@@ -24,21 +25,33 @@ export function Hero() {
         &gt; full-stack + data · banking systems &amp; lakehouse pipelines ·{" "}
         {profile.location}
       </motion.p>
-      <motion.div {...rise(0.24)} className="flex flex-wrap gap-2.5">
-        <Button
-          variant="primary"
-          onPress={() => {
-            window.location.href = `mailto:${profile.email}`;
-          }}
-        >
-          Email me
-        </Button>
-        <Button variant="outline" onPress={() => openExternal(profile.github)}>
-          GitHub
-        </Button>
-        <Button variant="ghost" onPress={() => openExternal(profile.linkedin)}>
-          LinkedIn
-        </Button>
+      <motion.p {...rise(0.24)} className="max-w-lg text-sm leading-relaxed text-muted">
+        {profile.about}
+      </motion.p>
+      <motion.div {...rise(0.32)} className="flex flex-wrap gap-2.5">
+        <motion.div {...pressable}>
+          <Button
+            variant="primary"
+            onPress={() => {
+              window.location.href = `mailto:${profile.email}`;
+            }}
+          >
+            <MailIcon />
+            Email me
+          </Button>
+        </motion.div>
+        <motion.div {...pressable}>
+          <Button variant="outline" onPress={() => openExternal(profile.github)}>
+            <GitHubIcon />
+            GitHub
+          </Button>
+        </motion.div>
+        <motion.div {...pressable}>
+          <Button variant="ghost" onPress={() => openExternal(profile.linkedin)}>
+            <LinkedInIcon />
+            LinkedIn
+          </Button>
+        </motion.div>
       </motion.div>
     </header>
   );

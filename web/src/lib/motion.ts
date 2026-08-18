@@ -13,3 +13,19 @@ export const listItem = (index: number) => ({
   animate: { opacity: 1, x: 0 },
   transition: { duration: 0.3, ease: "easeOut" as const, delay: index * 0.05 },
 });
+
+/**
+ * Hover/tap lift for large surfaces (cards). Each target carries its own
+ * `transition` so this can be spread alongside `rise(delay)` on the same
+ * element without the two colliding on a shared top-level `transition` key.
+ */
+export const hoverLift = {
+  whileHover: { y: -3, transition: { duration: 0.2, ease: "easeOut" as const } },
+  whileTap: { y: 0, transition: { duration: 0.1, ease: "easeOut" as const } },
+};
+
+/** Scale feedback for small pressable elements (buttons, chips). */
+export const pressable = {
+  whileHover: { scale: 1.03, transition: { duration: 0.15, ease: "easeOut" as const } },
+  whileTap: { scale: 0.97, transition: { duration: 0.1, ease: "easeOut" as const } },
+};
