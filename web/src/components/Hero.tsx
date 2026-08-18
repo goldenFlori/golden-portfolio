@@ -25,7 +25,7 @@ export function Hero() {
         &gt; full-stack + data · banking systems &amp; lakehouse pipelines ·{" "}
         {profile.location}
       </motion.p>
-      <motion.p {...rise(0.24)} className="max-w-lg text-sm leading-relaxed text-muted">
+      <motion.p {...rise(0.24)} className="w-full max-w-none text-sm leading-relaxed text-muted">
         {profile.about}
       </motion.p>
       <motion.div {...rise(0.32)} className="flex flex-wrap gap-2.5">
